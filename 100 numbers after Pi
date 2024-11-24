@@ -1,0 +1,171 @@
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: '100 numbers after Pi',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: PiHomePage(),
+    );
+  }
+}
+
+class PiHomePage extends StatelessWidget {
+  final List<String> piDigits = [
+    '1', '4', '1', '5', '9', '2', '6', '5', '3', '5',
+    '8', '9', '7', '9', '3', '2', '3', '8', '4', '6',
+    '2', '6', '4', '3', '3', '8', '3', '2', '7', '9',
+    '5', '0', '2', '8', '8', '4', '1', '9', '7', '1',
+    '6', '9', '3', '9', '9', '3', '7', '5', '1', '0',
+    '5', '8', '2', '0', '9', '7', '4', '9', '4', '4',
+    '5', '9', '2', '3', '0', '7', '8', '1', '6', '4',
+    '0', '6', '2', '8', '6', '2', '0', '8', '9', '9',
+    '8', '6', '2', '8', '0', '3', '4', '8', '2', '5',
+    '3', '4', '2', '1', '1', '7', '0', '6', '7', '9'
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('100 numbers after Pi'),
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black, width: 1),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Center(child: Text('Number', style: TextStyle(fontWeight: FontWeight.bold)))),
+                  Container(width: 1, height: 40, color: Colors.black),
+                  Expanded(child: Center(child: Text('The number Pi', style: TextStyle(fontWeight: FontWeight.bold)))),
+                ],
+              ),
+              Divider(thickness: 1, color: Colors.black),
+              for (int index = 0; index < piDigits.length; index++)
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Center(child: Text('${index + 1}'))),
+                        Container(width: 1, height: 40, color: Colors.black),
+                        Expanded(child: Center(child: Text(piDigits[index]))),
+                      ],
+                    ),
+                    Divider(thickness: 1, color: Colors.black),
+                  ],
+                ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TrainingPage(piDigits: piDigits)),
+                  );
+                },
+                child: Text('Start training'),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 255, 255, 255)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TrainingPage extends StatefulWidget {
+  final List<String> piDigits;
+
+  const TrainingPage({Key? key, required this.piDigits}) : super(key: key);
+
+  @override
+  _TrainingPageState createState() => _TrainingPageState();
+}
+
+class _TrainingPageState extends State<TrainingPage> {
+  String userInput = '';
+  String feedback = '';
+  int currentPosition = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    _nextQuestion(); 
+  }
+
+  void _nextQuestion() {
+    setState(() {
+      currentPosition = Random().nextInt(widget.piDigits.length);
+      userInput = ''; 
+      feedback = '';  
+    });
+  }
+
+  void _checkAnswer() {
+    if (userInput.isEmpty) {
+      setState(() {
+        feedback = 'Please enter a number';
+      });
+      return;
+    }
+
+    if (userInput == widget.piDigits[currentPosition]) {
+      setState(() {
+        feedback = 'Right!';
+      });
+      Future.delayed(Duration(seconds: 1), () {
+        _nextQuestion(); 
+      });
+    } else {
+      setState(() {
+        feedback = 'Error! Try again'; 
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Training'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('${currentPosition + 1} - ?'), 
+            TextFormField(
+              textAlign: TextAlign.center, 
+              onChanged: (value) {
+                userInput = value;
+              },
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _checkAnswer,
+              child: Text('Check the answer'),
+            ),
+            SizedBox(height: 20),
+            Text(feedback),
+          ],
+        ),
+      ),
+    );
+  }
+}
